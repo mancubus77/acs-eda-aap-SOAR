@@ -1,0 +1,103 @@
+- name: Set variable for the play
+  ansible.builtin.set_fact:
+    debug_podname: "debug-checker"
+    debug_namespace: "default"
+
+- name: Block
+  block:
+    - name: Retrieve all pods in the deployment
+      kubernetes.core.k8s_info:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
+        api_version: v1
+        kind: Pod
+        namespace: "{{ item.namespace }}"
+        name: "{{ item.pod_id }}"
+      register: pods_info
+
+    - name: Extract Pod facts
+      ansible.builtin.set_fact:
+        __node: "{{ pods_info | json_query('resources[*].spec.nodeName') | first }}"
+
+    - name: Create Debug Pod from template
+      kubernetes.core.k8s:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
+        state: present
+        template: "{{ playbook_dir }}/templates/checkpoint-pod.yaml"
+        wait: true
+        wait_timeout: 600
+      vars:
+        checkpoint_namespace: "{{ item.namespace }}"
+        checkpoint_pod: "{{ item.pod_id }}"
+        checkpoint_container: "{{ item.container }}"
+      register: create_job
+
+    - name: Wait till Kubernetes Job is completed
+      kubernetes.core.k8s_info:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
+        kind: Job
+        namespace: "{{ debug_namespace }}"
+        name: "{{ debug_podname }}"
+      register: job_info
+      until:
+        - job_info.resources[0].status.succeeded is defined
+        - job_info.resources[0].status.succeeded == 1
+      retries: 30
+      delay: 5
+
+    - name: Get Pod Details
+      kubernetes.core.k8s_info:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
+        kind: Pod
+        namespace: "{{ debug_namespace }}"
+        label_selectors:
+          - "job-name = {{ debug_podname }}"
+      register: pod_info
+
+    - name: Show pod pod_info [verbosity]
+      ansible.builtin.debug:
+        var: pod_info
+        verbosity: 1
+
+    - name: Get Logs from container
+      kubernetes.core.k8s_log:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
+        namespace: "{{ debug_namespace }}"
+        name: "{{ debug_checker }}"
+      vars:
+        debug_checker: "{{ pod_info.resources[0].metadata.name }}"
+      register: log_info
+
+    - name: Show pod pod_info [verbosity]
+      ansible.builtin.debug:
+        var: log_info
+
+    - name: Send notification message via Slack
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "#levelup-eda-demo"
+        msg: "Pods {{ __violated_pods }} abnormal activity! Checkpoint has been captured here {{ log_info.log }}"
+
+  always:
+    # This is cleanup task to delete debug pod if needed
+    - name: Cleanup
+      kubernetes.core.k8s:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
+        state: absent
+        template: "{{ playbook_dir }}/templates/checkpoint-pod.yaml"
+      vars:
+        checkpoint_namespace: "{{ item.namespace }}"
+        checkpoint_pod: "{{ item.pod_id }}"
+        checkpoint_container: "{{ item.container }}"
+      ignore_errors: true

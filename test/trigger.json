@@ -1,0 +1,139 @@
+{
+	"appname": "stackRoxKubernetesSecurityPlatform",
+	"checkpoint": 1,
+	"cluster_name": "my-cluster",
+	"entity": {
+		"deployment": {
+			"cluster_id": "6015e240-e967-4fb8-b1b4-4d3642a254d7",
+			"cluster_name": "my-cluster",
+			"containers": [
+				{
+					"image": {
+						"id": "sha256:ff0496aa6f8c85a907b69fcb9331499a81a8bc57fba07034a4b95e87395a6c3b",
+						"name": {
+							"full_name": "quay.io/mancubus77/cve-2017-5638:latest",
+							"registry": "quay.io",
+							"remote": "mancubus77/cve-2017-5638",
+							"tag": "latest"
+						}
+					},
+					"name": "container-one"
+				},
+				{
+					"image": {
+						"id": "sha256:1796be33ae88886654f7aae9f96298e1c5e2e2a1fc3ccaaefbe5854ec8f3fd48",
+						"name": {
+							"full_name": "docker.io/timberio/vector:latest-alpine",
+							"registry": "docker.io",
+							"remote": "timberio/vector",
+							"tag": "latest-alpine"
+						}
+					},
+					"name": "container-two"
+				}
+			],
+			"id": "21d0909e-6711-4584-8523-b2eede2d5ee3",
+			"name": "cve-2017-5638",
+			"namespace": "rhacs-operator",
+			"namespace_id": "a6daa6d7-4ba4-45c1-9943-8785c62019df",
+			"type": "Deployment"
+		}
+	},
+	"facility": "local0",
+	"host": "central",
+	"hostname": "central",
+	"msgid": "stackroxKubernetesSecurityPlatformAlert",
+	"namespace": "rhacs-operator",
+	"nslabels": "{\"kubernetes.io/metadata.name\":\"rhacs-operator\",\"pod-security.kubernetes.io/audit\":\"privileged\",\"pod-security.kubernetes.io/audit-version\":\"v1.24\",\"pod-security.kubernetes.io/warn\":\"privileged\",\"pod-security.kubernetes.io/warn-version\":\"v1.24\"}",
+	"process_violation": {
+		"message": "Binaries '/bin/ping' and '/bin/sh' executed with 3 different arguments under user ID 1001040000",
+		"processes": [
+			{
+				"container_name": "container-two",
+				"container_start_time": {
+					"seconds": 1725532156
+				},
+				"deployment_id": "21d0909e-6711-4584-8523-b2eede2d5ee3",
+				"id": "fba13136-efff-43c2-bf4c-e8510fc37022",
+				"image_id": "sha256:1796be33ae88886654f7aae9f96298e1c5e2e2a1fc3ccaaefbe5854ec8f3fd48",
+				"namespace": "rhacs-operator",
+				"pod_id": "cve-2017-5638-5c4954db7c-bhtjp",
+				"pod_uid": "3294fbb0-4593-5337-9718-0faa86d6e52d",
+				"signal": {
+					"args": "-c TERM=\"xterm-256color\" /bin/sh",
+					"container_id": "265a01fc7144",
+					"exec_file_path": "/bin/sh",
+					"id": "f98efa90-6b71-11ef-b2c5-0a580a800017",
+					"name": "sh",
+					"pid": 86966,
+					"time": {
+						"nanos": 413662420,
+						"seconds": 1725532273
+					},
+					"uid": 1001040000
+				}
+			},
+			{
+				"container_name": "container-two",
+				"container_start_time": {
+					"seconds": 1725532156
+				},
+				"deployment_id": "21d0909e-6711-4584-8523-b2eede2d5ee3",
+				"id": "92b480b7-c55b-4be9-9904-fdf433c5aacb",
+				"image_id": "sha256:1796be33ae88886654f7aae9f96298e1c5e2e2a1fc3ccaaefbe5854ec8f3fd48",
+				"namespace": "rhacs-operator",
+				"pod_id": "cve-2017-5638-5c4954db7c-bhtjp",
+				"pod_uid": "3294fbb0-4593-5337-9718-0faa86d6e52d",
+				"signal": {
+					"container_id": "265a01fc7144",
+					"exec_file_path": "/bin/sh",
+					"id": "f98f0396-6b71-11ef-b2c5-0a580a800017",
+					"name": "sh",
+					"pid": 86966,
+					"time": {
+						"nanos": 413985735,
+						"seconds": 1725532273
+					},
+					"uid": 1001040000
+				}
+			},
+			{
+				"container_name": "container-two",
+				"container_start_time": {
+					"seconds": 1725532156
+				},
+				"deployment_id": "21d0909e-6711-4584-8523-b2eede2d5ee3",
+				"id": "77a19055-5031-4936-b067-6df60955a0c3",
+				"image_id": "sha256:1796be33ae88886654f7aae9f96298e1c5e2e2a1fc3ccaaefbe5854ec8f3fd48",
+				"namespace": "rhacs-operator",
+				"pod_id": "cve-2017-5638-5c4954db7c-bhtjp",
+				"pod_uid": "3294fbb0-4593-5337-9718-0faa86d6e52d",
+				"signal": {
+					"args": "1.1.1.1",
+					"container_id": "265a01fc7144",
+					"exec_file_path": "/bin/ping",
+					"id": "0304aec6-6b72-11ef-b2c5-0a580a800017",
+					"lineage_info": [
+						{
+							"parent_exec_file_path": "/bin/sh",
+							"parent_uid": 1001040000
+						}
+					],
+					"name": "ping",
+					"pid": 87400,
+					"time": {
+						"nanos": 284888291,
+						"seconds": 1725532289
+					},
+					"uid": 1001040000
+				}
+			}
+		]
+	},
+	"procid": 1,
+	"severity": "err",
+	"source_ip": "10.128.0.188",
+	"source_type": "syslog",
+	"timestamp": "2024-09-05T10:31:29Z",
+	"version": 1
+}

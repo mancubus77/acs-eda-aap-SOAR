@@ -1,0 +1,96 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: {{ debug_podname }}
+  namespace: {{ debug_namespace }}
+spec:
+  backoffLimit: 4
+  completions: 1
+  parallelism: 1
+  ttlSecondsAfterFinished: 20
+  template:
+    metadata:
+      name: {{ debug_podname }}
+      annotations:
+        debug.openshift.io/source-container: container-00
+        debug.openshift.io/source-resource: '/v1, Resource=nodes/sno-3-2511'
+        openshift.io/scc: node-exporter
+        seccomp.security.alpha.kubernetes.io/pod: runtime/default
+      labels:
+        debuggerpod: debuggerpod
+    spec:
+      restartPolicy: Never
+      serviceAccountName: default
+      hostPID: true
+      priority: 0
+      schedulerName: default-scheduler
+      hostNetwork: true
+      enableServiceLinks: true
+      terminationGracePeriodSeconds: 30
+      preemptionPolicy: PreemptLowerPriority
+      nodeName: sno-3-25
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - resources: {}
+          stdin: true
+          terminationMessagePath: /dev/termination-log
+          stdinOnce: true
+          name: container-00
+          command: [ "/bin/sh", "-c", "--" ]
+          args: [ "chroot /host curl -X POST -k --cert /etc/kubernetes/static-pod-resources/kube-apiserver-certs/secrets/kubelet-client/tls.crt --key /etc/kubernetes/static-pod-resources/kube-apiserver-certs/secrets/kubelet-client/tls.key 'https://localhost:10250/checkpoint/{{ checkpoint_namespace }}/{{ checkpoint_pod }}/{{ checkpoint_container }}'" ]
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: host
+              mountPath: /host
+            - name: kube-api-access-random
+              readOnly: true
+              mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          terminationMessagePolicy: File
+          tty: true
+          image: registry.redhat.io/rhel7/support-tools
+      serviceAccount: default
+      volumes:
+        - name: host
+          hostPath:
+            path: /
+            type: Directory
+        - name: kube-api-access-random
+          projected:
+            sources:
+              - serviceAccountToken:
+                  expirationSeconds: 3607
+                  path: token
+              - configMap:
+                  name: kube-root-ca.crt
+                  items:
+                    - key: ca.crt
+                      path: ca.crt
+              - downwardAPI:
+                  items:
+                    - path: namespace
+                      fieldRef:
+                        apiVersion: v1
+                        fieldPath: metadata.namespace
+              - configMap:
+                  name: openshift-service-ca.crt
+                  items:
+                    - key: service-ca.crt
+                      path: service-ca.crt
+            defaultMode: 420
+      dnsPolicy: ClusterFirst
+      tolerations:
+        - key: node.kubernetes.io/not-ready
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+        - key: node.kubernetes.io/unreachable
+          operator: Exists
+          effect: NoExecute
+          tolerationSeconds: 300
+      nodeSelector:
+        kubernetes.io/hostname: {{ __node }}

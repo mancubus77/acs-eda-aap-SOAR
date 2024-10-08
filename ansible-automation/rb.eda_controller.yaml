@@ -1,0 +1,19 @@
+---
+- name: Kubernetes Checkpoing SOAR
+  hosts: all
+  execution_strategy: parallel
+  sources:
+    - ansible.eda.webhook:
+        host: 0.0.0.0
+        port: 5000
+  rules:
+    - name: Get Checkpoint
+      condition: event.payload is defined
+      action:
+        run_job_template:
+          name: "Run Checkpoint"
+          organization: Default
+          job_args:
+            extra_vars:
+              alert: "{{ event.payload | first }}"
+              message: "from eda"

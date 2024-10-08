@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vector
+  labels:
+    app: vector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vector
+  template:
+    metadata:
+      labels:
+        app: vector
+    spec:
+      containers:
+        - name: vector
+          image: docker.io/timberio/vector:latest-alpine
+          resources:
+            requests:
+              memory: "1024Mi"
+              cpu: "1000m"
+            limits:
+              memory: "1024Mi"
+              cpu: "1000m"
+          environment:
+            VECTOR_LOG: debug
+          ports:
+            - containerPort: 9000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/vector/vector.yaml
+              subPath: vector.yaml
+      volumes:
+        - name: config-volume
+          configMap:
+            name: vector-config

@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  labels:
+    app: vector
+data:
+  vector.yaml: |
+    sources:
+      inSyslog:
+        type: syslog
+        address: 0.0.0.0:5514
+        mode: tcp
+
+    transforms:
+      # Parse message
+      parse_acs:
+        type: remap
+        inputs: 
+          - inSyslog
+        source: |-
+          # VIRL Playground example https://tinyurl.com/4sneu5sv
+          . |= parse_regex!(.message, r'nslabels=(?P<nslabels>.*) stackroxKubernetesSecurityPlatformAlert=(?P<alert>.*)')
+          .alert = parse_json!(.alert)
+          .cluster_name = .alert.cluster_name
+          .namespace = .alert.namespace
+          .entity = .alert.Entity
+          .process_violation = .alert.process_violation
+          .policy_name = .alert.policy.name
+          del(.alert)
+          del(.message)
+      # Routers 
+      router:
+        type: route
+        inputs:
+          - parse_acs
+        route:
+          http: .policy_name == "Unauthorized Process Execution"
+          other: .alert.cluster_name == "other"
+
+    sinks:
+      # Console
+      console:
+        type: console
+        inputs:
+          - inSyslog
+          - router._unmatched
+          # - parse_acs
+          # - inSyslog
+        encoding:
+          codec: json
+      # Webhook
+      http:
+        type: http
+        inputs:
+          - router.http
+        ### Update Kubernetes service before deployment
+        uri: http://activation-job-8-59-5000:5000
+        encoding:
+          codec: json

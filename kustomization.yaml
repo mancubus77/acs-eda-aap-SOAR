@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rhacs-operator
+
+resources:
+  # Logging application and config
+  - base/vector-app.yaml
+  - base/vector-service.yaml
+  - base/vector-config.yaml
+  # Vulnerable application
+  - base/cve-app.yaml
+
+  ## CRIU Machine Configs, apply will cause nodes rolling restart.
+  ## Please modify role as well, as default applies config on masters only
+  # - base/checkpoint-mc/05-enable-criu.yaml
+  # - base/checkpoint-mc/05-enable-criu-conf.yaml
+
+# commonLabels:
+#   app: vector

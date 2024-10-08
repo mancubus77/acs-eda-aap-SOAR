@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vector
+spec:
+  selector:
+    app: vector
+  ports:
+    - protocol: TCP
+      port: 5514
+      targetPort: 5514

@@ -1,0 +1,17 @@
+---
+- name: Kubernetes Checkpoing SOAR
+  hosts: all
+  execution_strategy: parallel
+  sources:
+    - ansible.eda.webhook:
+        host: 0.0.0.0
+        port: 5000
+  rules:
+    # Main Add User
+    - name: Get Checkpoint
+      condition: event.payload.checkpoint is defined
+      action:
+        run_playbook:
+          name: ansible-automation/pb.remediate.yaml
+          extra_vars:
+            alert: "{{ event.payload }}"
