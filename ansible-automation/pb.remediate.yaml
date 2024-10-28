@@ -151,6 +151,10 @@
           | from_json
           | json_query('process_violation.processes[*].{container: container_name, pod_id: pod_id, namespace: namespace}')
           | unique }}"
+        __entity: "{{ ddata
+          | from_json
+          | json_query('entity.*.{type: type, name: name, namespace: namespace}')
+          | unique }}"
       when: run_local is defined
 
     - name: Parse input params from EDA
@@ -158,8 +162,16 @@
         __violated_pods: "{{ alert
           | json_query('process_violation.processes[*].{container: container_name, pod_id: pod_id, namespace: namespace}')
           | unique }}"
+        __entity: "{{ ddata
+          | from_json
+          | json_query('entity.*.{type: type, name: name, namespace: namespace}')
+          | unique }}"
       when: run_local is not defined
 
     - name: Iterate violations
       ansible.builtin.include_tasks: "tasks/run_checkpoint.yaml"
       with_items: "{{ __violated_pods }}"
+
+    - name: Jailbox containers
+      ansible.builtin.include_tasks: "tasks/jailbox_containers.yaml"
+      with_items: "{{ __entity }}"
