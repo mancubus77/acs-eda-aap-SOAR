@@ -1,7 +1,5 @@
-
 - name: Block
   block:
-    - name: Retrieve all pods in the deployment
     - name: INFO
       ansible.builtin.debug:
         msg: "Jailboxing {{ item.type }}/{{ item.name }}"
