@@ -18,6 +18,7 @@ spec:
         seccomp.security.alpha.kubernetes.io/pod: runtime/default
       labels:
         debuggerpod: debuggerpod
+        debugpodlabel: "{{ debugpodlabel }}"
     spec:
       restartPolicy: Never
       serviceAccountName: default
