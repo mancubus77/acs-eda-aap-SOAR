@@ -14,7 +14,7 @@
         name: "{{ item.name }}"
         patch:
           - op: add
-            path: /spec/runtimeClassName
+            path: /spec/template/spec/runtimeClassName
             value: kata
   rescue:
     - name: Task failed
