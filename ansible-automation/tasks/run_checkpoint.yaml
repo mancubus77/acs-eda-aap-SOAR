@@ -2,6 +2,7 @@
   ansible.builtin.set_fact:
     debug_podname: "debug-checker"
     debug_namespace: "default"
+    failed: false
 
 - name: Block
   block:
@@ -19,8 +20,13 @@
     - name: DEBUG Print pods_info output 
       debug:
         var: pods_info
-        verbosity: 4
+        verbosity: 3
 
+    - name: Fail task
+      ansible.builtin.set_fact:
+        failed: true
+      when: pods_info | length == 0
+      
     - name: Extract Pod facts
       ansible.builtin.set_fact:
         __node: "{{ pods_info | json_query('resources[*].spec.nodeName') | first }}"
@@ -92,6 +98,11 @@
         channel: "#levelup-eda-demo"
         msg: "Pods {{ __violated_pods }} abnormal activity! Checkpoint has been captured here {{ log_info.log }}"
 
+  rescue:
+    - name: Task failed
+      ansible.builtin.debug:
+        msg: "Task failed for some reason, going to the next pod"
+
   always:
     # This is cleanup task to delete debug pod if needed
     - name: Cleanup
@@ -106,3 +117,4 @@
         checkpoint_pod: "{{ item.pod_id }}"
         checkpoint_container: "{{ item.container }}"
       ignore_errors: true
+      when: not failed
