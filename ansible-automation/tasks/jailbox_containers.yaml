@@ -6,6 +6,9 @@
 
     - name: Jailbox container
       kubernetes.core.k8s_json_patch:
+        api_key: "{{ ocp_token }}"
+        host: "{{ ocp_url }}"
+        validate_certs: false
         kind: "{{ item.type }}"
         namespace: "{{ item.namespace }}"
         name: "{{ item.name }}"

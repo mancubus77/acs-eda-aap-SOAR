@@ -3,6 +3,7 @@
     debug_podname: "debug-checker"
     debug_namespace: "default"
     failed: false
+    debugpodlabel: "{{ 99999999 | random | to_uuid }}"
 
 - name: Block
   block:
@@ -69,7 +70,7 @@
         kind: Pod
         namespace: "{{ debug_namespace }}"
         label_selectors:
-          - "job-name = {{ debug_podname }}"
+          - "debugpodlabel = {{ debugpodlabel }}"
       register: pod_info
 
     - name: Show pod pod_info [verbosity]
