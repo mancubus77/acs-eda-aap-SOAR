@@ -17,7 +17,7 @@
         name: "{{ item.pod_id }}"
       register: pods_info
 
-    - name: DEBUG Print pods_info output 
+    - name: DEBUG Print pods_info output
       debug:
         var: pods_info
         verbosity: 3
@@ -26,7 +26,7 @@
       ansible.builtin.set_fact:
         failed: true
       when: pods_info | length == 0
-      
+
     - name: Extract Pod facts
       ansible.builtin.set_fact:
         __node: "{{ pods_info | json_query('resources[*].spec.nodeName') | first }}"
@@ -111,10 +111,11 @@
         host: "{{ ocp_url }}"
         validate_certs: false
         state: absent
-        template: "{{ playbook_dir }}/templates/checkpoint-pod.yaml"
+        template: "{{ playbook_dir }}/templates/checkpoint-pod.yamllight"
       vars:
         checkpoint_namespace: "{{ item.namespace }}"
         checkpoint_pod: "{{ item.pod_id }}"
         checkpoint_container: "{{ item.container }}"
       ignore_errors: true
-      when: not failed
+      when: failed == false
+

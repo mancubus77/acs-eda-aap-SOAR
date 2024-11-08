@@ -1,13 +1,21 @@
-- name: INFO
-  ansible.builtin.debug:
-    msg: "Jailboxing {{ item.type }}/{{ item.name }}"
 
-- name: Jailbox container
-  kubernetes.core.k8s_json_patch:
-    kind: "{{ item.type }}"
-    namespace: "{{ item.namespace }}"
-    name: "{{ item.name }}"
-    patch:
-      - op: add
-        path: /spec/runtimeClassName
-        value: kata
+- name: Block
+  block:
+    - name: Retrieve all pods in the deployment
+    - name: INFO
+      ansible.builtin.debug:
+        msg: "Jailboxing {{ item.type }}/{{ item.name }}"
+
+    - name: Jailbox container
+      kubernetes.core.k8s_json_patch:
+        kind: "{{ item.type }}"
+        namespace: "{{ item.namespace }}"
+        name: "{{ item.name }}"
+        patch:
+          - op: add
+            path: /spec/runtimeClassName
+            value: kata
+  rescue:
+    - name: Task failed
+      ansible.builtin.debug:
+        msg: "Jailobox failed for {{ item.name }}, going to the next pod"
