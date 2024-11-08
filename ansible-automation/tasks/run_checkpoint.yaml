@@ -16,6 +16,11 @@
         name: "{{ item.pod_id }}"
       register: pods_info
 
+    - name: DEBUG Print pods_info output 
+      debug:
+        var: pods_info
+        verbosity: 4
+
     - name: Extract Pod facts
       ansible.builtin.set_fact:
         __node: "{{ pods_info | json_query('resources[*].spec.nodeName') | first }}"
