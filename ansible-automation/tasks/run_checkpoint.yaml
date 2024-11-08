@@ -18,14 +18,14 @@
       register: pods_info
 
     - name: DEBUG Print pods_info output
-      debug:
+      ansible.builtin.debug:
         var: pods_info
         verbosity: 3
 
-    - name: Fail task
+    - name: Fail task when length of pods_info == 0
       ansible.builtin.set_fact:
         failed: true
-      when: pods_info | length == 0
+      when: pods_info.resources | length == 0
 
     - name: Extract Pod facts
       ansible.builtin.set_fact:
@@ -118,4 +118,3 @@
         checkpoint_container: "{{ item.container }}"
       ignore_errors: true
       when: failed == false
-
