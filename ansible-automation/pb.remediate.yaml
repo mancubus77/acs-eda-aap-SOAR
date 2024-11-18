@@ -162,7 +162,7 @@
         __violated_pods: "{{ alert
           | json_query('process_violation.processes[*].{container: container_name, pod_id: pod_id, namespace: namespace}')
           | unique }}"
-        __entity: "{{ ddata
+        __entity: "{{ alert
           | from_json
           | json_query('entity.*.{type: type, name: name, namespace: namespace}')
           | unique }}"

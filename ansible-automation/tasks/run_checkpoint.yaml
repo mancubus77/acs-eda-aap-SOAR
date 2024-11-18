@@ -112,7 +112,7 @@
         host: "{{ ocp_url }}"
         validate_certs: false
         state: absent
-        template: "{{ playbook_dir }}/templates/checkpoint-pod.yamllight"
+        template: "{{ playbook_dir }}/templates/checkpoint-pod.yaml"
       vars:
         checkpoint_namespace: "{{ item.namespace }}"
         checkpoint_pod: "{{ item.pod_id }}"
