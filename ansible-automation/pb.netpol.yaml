@@ -16,5 +16,11 @@
       with_items: "{{ __entity }}"
       when: do_jailbox is defined
 
-    - name: Send notification
-      ansible.builtin.include_tasks: "tasks/send_slack.yaml"
+    - name: JAILBOX Send notification message via Slack
+      community.general.slack:
+        token: "{{ slack_token }}"
+        channel: "#levelup-eda-demo"
+        msg: |-
+          "🔴 🏴‍☠️ abnormal activity detected: 
+            {{ __entity | to_nice_json(indent=2) }} 🏴‍☠️ 
+          Entity has been jailboxed!"
