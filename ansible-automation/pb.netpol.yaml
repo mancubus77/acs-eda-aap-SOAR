@@ -4,6 +4,13 @@
   connection: local
 
   tasks:
+    - name: Parse input params from EDA
+      ansible.builtin.set_fact:
+        __entity: "{{ alert
+          | json_query('entity.*.{type: type, name: name, namespace: namespace}')
+          | unique }}"
+      when: run_local is not defined
+
     - name: Jailbox containers
       ansible.builtin.include_tasks: "tasks/jailbox_containers.yaml"
       with_items: "{{ __entity }}"
