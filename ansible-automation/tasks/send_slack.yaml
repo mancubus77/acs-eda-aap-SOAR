@@ -15,5 +15,5 @@
     msg: |-
       "🔴 🏴‍☠️ abnormal activity detected:
       {{ __violated_pods | to_nice_json(indent=2) }}
-      Checkpoint has been captured ↘️ {{ log_info.log | from_json | first }}"
+      Checkpoint has been captured ↘️ {{ log_info.log | from_json | to_nice_json(indent=2) }}"
   when: do_checkpoint is defined
