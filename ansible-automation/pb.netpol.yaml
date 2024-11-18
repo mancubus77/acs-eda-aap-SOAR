@@ -1,0 +1,13 @@
+- name: Collect checkpoint data from running container
+  hosts: localhost
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: Jailbox containers
+      ansible.builtin.include_tasks: "tasks/jailbox_containers.yaml"
+      with_items: "{{ __entity }}"
+      when: do_jailbox is defined
+
+    - name: Send notification
+      ansible.builtin.include_tasks: "tasks/send_slack.yaml"

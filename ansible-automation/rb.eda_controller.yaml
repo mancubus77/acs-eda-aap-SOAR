@@ -7,8 +7,19 @@
         host: 0.0.0.0
         port: 5000
   rules:
+    - name: Jailbox container for network policy
+      condition: event.payload.policy_name == "Unauthorized Network Flow"
+      action:
+        run_job_template:
+          name: "Jailbox container"
+          organization: Default
+          job_args:
+            extra_vars:
+              alert: "{{ event.payload | first }}"
+              message: "from eda"
+
     - name: Get Checkpoint
-      condition: event.payload is defined
+      condition: event.payload.policy_name != "Unauthorized Network Flow"
       action:
         run_job_template:
           name: "Run Checkpoint"
