@@ -14,7 +14,7 @@
           pretty: true
 
     - name: Jailbox container for network policy
-      condition: event.payload.policy_name == "Unauthorized Network Flow"
+      condition: event.payload[0].policy_name == "Unauthorized Network Flow"
       action:
         run_job_template:
           name: "Jailbox container"
@@ -25,7 +25,7 @@
               message: "from eda"
 
     - name: Get Checkpoint
-      condition: event.payload.policy_name != "Unauthorized Network Flow"
+      condition: event.payload[0].policy_name != "Unauthorized Network Flow"
       action:
         run_job_template:
           name: "Run Checkpoint"
