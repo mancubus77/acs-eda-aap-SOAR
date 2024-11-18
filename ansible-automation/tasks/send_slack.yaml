@@ -2,14 +2,18 @@
   community.general.slack:
     token: "{{ slack_token }}"
     channel: "#levelup-eda-demo"
-    msg: "🔴Pods {{ __violated_pods | to_nice_json(indent=2) }} 🏴‍☠️ abnormal activity! Container has been jailboxed"
+    msg: |-
+      "🔴 🏴‍☠️ abnormal activity detected: 
+        {{ __violated_pods | to_nice_json(indent=2) }} 🏴‍☠️ 
+      Entity has been jailboxed!"
   when: do_jailbox is defined
 
 - name: CHECKPOINT Send notification message via Slack
   community.general.slack:
     token: "{{ slack_token }}"
     channel: "#levelup-eda-demo"
-    msg: |
-      "🔴Pods {{ __violated_pods | to_nice_json(indent=2) }} 🏴‍☠️ abnormal activity! 
+    msg: |-
+      "🔴 🏴‍☠️ abnormal activity detected:
+       {{ __violated_pods | to_nice_json(indent=2) }} 
       Checkpoint has been captured ↘️ {{ log_info.log | to_nice_json(indent=2) }}"
   when: do_checkpoint is defined
