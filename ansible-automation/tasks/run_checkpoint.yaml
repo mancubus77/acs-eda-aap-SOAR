@@ -92,13 +92,7 @@
     - name: Show pod pod_info [verbosity]
       ansible.builtin.debug:
         var: log_info
-
-    - name: Send notification message via Slack
-      community.general.slack:
-        token: "{{ slack_token }}"
-        channel: "#levelup-eda-demo"
-        msg: "Pods {{ __violated_pods }} abnormal activity! Checkpoint has been captured here {{ log_info.log }}"
-
+        
   rescue:
     - name: Task failed
       ansible.builtin.debug:

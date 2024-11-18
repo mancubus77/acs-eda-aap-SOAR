@@ -19,4 +19,4 @@
   rescue:
     - name: Task failed
       ansible.builtin.debug:
-        msg: "Jailobox failed for {{ item.name }}, going to the next pod"
+        msg: "Jailbox failed for {{ item.name }}, going to the next pod"
