@@ -7,12 +7,6 @@
         host: 0.0.0.0
         port: 5000
   rules:
-    - name: Multiple events with var_root
-      condition: event.payload is defined
-      action:
-        print_event:
-          pretty: true
-
     - name: Jailbox container for network policy
       condition: event.payload[0].policy_name == "Unauthorized Network Flow"
       action:
