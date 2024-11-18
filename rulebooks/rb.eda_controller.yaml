@@ -1,0 +1,36 @@
+---
+- name: Kubernetes Checkpoing SOAR
+  hosts: all
+  execution_strategy: parallel
+  sources:
+    - ansible.eda.webhook:
+        host: 0.0.0.0
+        port: 5000
+  rules:
+    - name: Multiple events with var_root
+      condition: event.payload is defined
+      action:
+        print_event:
+          pretty: true
+
+    - name: Jailbox container for network policy
+      condition: event.payload[0].policy_name == "Unauthorized Network Flow"
+      action:
+        run_job_template:
+          name: "Jailbox container"
+          organization: Default
+          job_args:
+            extra_vars:
+              alert: "{{ event.payload | first }}"
+              message: "from eda"
+
+    - name: Get Checkpoint
+      condition: event.payload[0].policy_name != "Unauthorized Network Flow"
+      action:
+        run_job_template:
+          name: "Run Checkpoint"
+          organization: Default
+          job_args:
+            extra_vars:
+              alert: "{{ event.payload | first }}"
+              message: "from eda"
