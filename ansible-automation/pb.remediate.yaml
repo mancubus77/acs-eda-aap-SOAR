@@ -163,7 +163,6 @@
           | json_query('process_violation.processes[*].{container: container_name, pod_id: pod_id, namespace: namespace}')
           | unique }}"
         __entity: "{{ alert
-          | from_json
           | json_query('entity.*.{type: type, name: name, namespace: namespace}')
           | unique }}"
       when: run_local is not defined
