@@ -21,6 +21,6 @@
         token: "{{ slack_token }}"
         channel: "#levelup-eda-demo"
         msg: |-
-          "🔴 🏴‍☠️ abnormal activity detected: 
-            {{ __entity | to_nice_json(indent=2) }} 🏴‍☠️ 
-          Entity has been jailboxed!"
+          🔴 🏴‍☠️ abnormal Network activity detected:
+            {{ __entity | to_nice_json(indent=2) }} 🏴‍☠️
+          Entity has been jailboxed!
