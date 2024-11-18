@@ -2,7 +2,7 @@
   community.general.slack:
     token: "{{ slack_token }}"
     channel: "#levelup-eda-demo"
-    msg: |+
+    msg: |-
       "🔴 🏴‍☠️ abnormal activity detected: 
         "{{ __violated_pods | to_nice_json(indent=2) }}" 🏴‍☠️ 
       Entity has been jailboxed!"
@@ -12,8 +12,8 @@
   community.general.slack:
     token: "{{ slack_token }}"
     channel: "#levelup-eda-demo"
-    msg: |+
+    msg: |-
       "🔴 🏴‍☠️ abnormal activity detected:
       {{ __violated_pods | to_nice_json(indent=2) }}
-      Checkpoint has been captured ↘️ {{ log_info.log | first }}"
+      Checkpoint has been captured ↘️ {{ log_info.log | from_json | fist }}"
   when: do_checkpoint is defined
